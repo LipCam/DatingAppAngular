@@ -1,0 +1,8 @@
+<h4>Internal Server Error</h4>
+@if(error){
+    <h5 class="text-danger">{{error.message}}</h5>
+    <p class="mt-5 font-wight-bold">Stack Trace Details</p>
+    <code>
+        {{error.details}}
+    </code>
+}
