@@ -7,6 +7,7 @@ import { Photo } from '../models/photo';
 import { PaginatedResult } from '../models/pagination';
 import { UserParams } from '../models/userParams';
 import { AccountService } from './account.service';
+import { onSetPaginatedResponse, onSetPaginationHeaders } from './paginationHelper';
 
 @Injectable({
   providedIn: 'root'
@@ -29,40 +30,22 @@ export class MembersService {
     const response = this.memberCache.get(key);
 
     if(response)
-      return this.onSetResponse(response);
+      return onSetPaginatedResponse(response, this.paginatedResult);
 
-    let params = this.onSetParams();
-
-    return this.http.get<Member[]>(`${this.baseUrl}users`, {observe: 'response', params}).subscribe({
-      //next: members => this.members.set(members)
-      next: response => {
-        this.onSetResponse(response);
-        this.memberCache.set(key,response);
-      }
-    });
-  }
-
-  private onSetParams(){
-    let params = new HttpParams();
-
-    if(this.userParams().pageNumber && this.userParams().pageSize){
-      params = params.append("pageNumber", this.userParams().pageNumber);
-      params = params.append("pageSize", this.userParams().pageSize);
-    }
+    let params = onSetPaginationHeaders(this.userParams().pageNumber, this.userParams().pageSize);
 
     params = params.append("minAge", this.userParams().minAge);
     params = params.append("maxAge", this.userParams().maxAge);
     params = params.append("gender", this.userParams().gender);
     params = params.append("orderBy", this.userParams().orderBy);
 
-    return params;
-  }
-
-  private onSetResponse(response: HttpResponse<Member[]>){
-    this.paginatedResult.set({
-      items: response.body as Member[],
-      pagination: JSON.parse(response.headers.get("Pagination")!)
-    })
+    return this.http.get<Member[]>(`${this.baseUrl}users`, {observe: 'response', params}).subscribe({
+      //next: members => this.members.set(members)
+      next: response => {
+        onSetPaginatedResponse(response, this.paginatedResult);
+        this.memberCache.set(key,response);
+      }
+    });
   }
 
   onGetMember(userName: string){    

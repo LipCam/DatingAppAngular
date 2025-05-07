@@ -8,7 +8,7 @@ import { NgxSpinnerComponent } from 'ngx-spinner';
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, NavComponent, HomeComponent, NgxSpinnerComponent],
+  imports: [RouterOutlet, NavComponent, NgxSpinnerComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
@@ -22,6 +22,7 @@ export class AppComponent implements OnInit {
   onSetCurrentUser() {
     const userString = localStorage.getItem("user");
     if(!userString) return;
-    this.accountService.currentUser.set(JSON.parse(userString));
+    // this.accountService.currentUser.set(JSON.parse(userString));
+    this.accountService.onSetCurrentUser(JSON.parse(userString));
   }
 }
